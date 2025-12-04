@@ -1,19 +1,23 @@
 # talos cluster
 
-## sops
-in `.sops.yaml`
+## .sops.yaml
+### generate age if doesnt exist
+```
+age-keygen -o $HOME/.config/sops/age/keys.txt
+```
+### generate
 ```
 creation_rules:
   - age:
     - {key}
 ```
 
-## secrets
-### create secrets
+## talsecret.sops.yaml
+### generate
 ```
 talhelper gensecret > talsecret.sops.yaml
 ```
-### encrypt secrets
+### encrypt
 ```
 sops -e -i talsecret.sops.yaml
 ```
@@ -109,4 +113,22 @@ nodes:
           - network: 0.0.0.0/0
             gateway: {node-ip-gateway}
         dhcp: false
+```
+
+## talhelper
+### generate config
+```
+talhelper genconfig
+```
+### apply config
+```
+talhelper gencommand apply --extra-flags --insecure
+```
+### bootstrap etcd
+```
+talosctl bootstrap --talosconfig=clusterconfig/talosconfig --nodes {endpoint-address}
+```
+### local kubeconfig
+```
+talosctl kubeconfig --talosconfig=clusterconfig/talosconfig --nodes {endpoint-address}
 ```
