@@ -24,7 +24,7 @@ sops -e -i talsecret.sops.yaml
 
 ## talconfig.yaml
 ### default
-```
+```bash
 domain: cluster.local
 allowSchedulingOnControlPlanes: false
 clusterPodNets:
@@ -147,7 +147,7 @@ helm template \
     --set securityContext.capabilities.cleanCiliumState="{NET_ADMIN,SYS_ADMIN,SYS_RESOURCE}" \
     --set cgroup.autoMount.enabled=false \
     --set cgroup.hostRoot=/sys/fs/cgroup \
-    --set k8sServiceHost=$ENDPOINT_ADDRESS \
+    --set k8sServiceHost={endpoint-ip} \
     --set k8sServicePort=6443 \
     --set=gatewayAPI.enabled=true \
     --set=gatewayAPI.enableAlpn=true \
