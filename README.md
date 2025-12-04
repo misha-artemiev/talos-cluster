@@ -193,3 +193,20 @@ helm template \
 kubectl create namespace cnpg-system
 kubectl apply --server-side -f cnpg.yaml
 ```
+### envoy gateway
+```bash
+helm template \
+    envoy-gateway oci://docker.io/envoyproxy/gateway-helm \
+    --kube-version {version} \ # <- EDIT THIS
+    --version {version} \ # <- EDIT THIS
+    --namespace envoy-gateway-system \
+    > envoy-gateway.yaml
+```
+```bash
+kubectl create namespace envoy-gateway-system
+kubectl label namespace envoy-gateway-system \
+    pod-security.kubernetes.io/enforce=privileged \
+    pod-security.kubernetes.io/warn=privileged \
+    pod-security.kubernetes.io/audit=privileged --overwrite
+kubectl apply -f envoy-gateway.yaml
+```
