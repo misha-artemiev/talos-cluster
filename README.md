@@ -9,7 +9,7 @@ age-keygen -o $HOME/.config/sops/age/keys.txt
 ```yaml
 creation_rules:
   - age:
-    - {key}
+    - {key} # <- EDIT THIS
 ```
 
 ## talsecret.sops.yaml
@@ -23,8 +23,11 @@ sops -e -i talsecret.sops.yaml
 ```
 
 ## talconfig.yaml
-### default
 ```yaml
+clusterName: {cluster-name} # <- EDIT THIS
+talosVersion: v{version} # <- EDIT THIS
+kubernetesVersion: v{version} # <- EDIT THIS
+endpoint: https://{endpoint-address}:6443 # <- EDIT THIS
 domain: cluster.local
 allowSchedulingOnControlPlanes: false
 clusterPodNets:
@@ -93,26 +96,21 @@ controlPlane:
   <<: *common
 worker:
   <<: *common
-```
-### additional
-```yaml
-clusterName: {cluster-name}
-talosVersion: v{version}
-kubernetesVersion: v{version}
-endpoint: https://{endpoint-address}:6443
+
 nodes:
-  - hostname: {node-name}
-    ipAddress: {node-ip}
-    installDisk: /dev/{node-install-disk}
+  - hostname: {node-name} # <- EDIT THIS
+    ipAddress: {node-ip} # <- EDIT THIS
+    installDisk: /dev/{node-install-disk} # <- EDIT THIS
     controlPlane: {is-control-panel}
     networkInterfaces:
-      - interface: {network-interface-name}
+      - interface: {network-interface-name} # <- EDIT THIS
         addresses:
-          - {node-ip}/{node-ip-cidr}
+          - {node-ip}/{node-ip-cidr} # <- EDIT THIS
         routes:
           - network: 0.0.0.0/0
-            gateway: {node-ip-gateway}
+            gateway: {node-ip-gateway} # <- EDIT THIS
         dhcp: false
+  - ... # <- ADD MORE
 ```
 
 ## talhelper
@@ -126,11 +124,11 @@ talhelper gencommand apply --extra-flags --insecure
 ```
 ### bootstrap etcd
 ```bash
-talosctl bootstrap --talosconfig=clusterconfig/talosconfig --nodes {endpoint-address}
+talosctl bootstrap --talosconfig=clusterconfig/talosconfig --nodes {endpoint-address} # <- EDIT THIS
 ```
 ### local kubeconfig
 ```bash
-talosctl kubeconfig --talosconfig=clusterconfig/talosconfig --nodes {endpoint-address}
+talosctl kubeconfig --talosconfig=clusterconfig/talosconfig --nodes {endpoint-address} # <- EDIT THIS
 ```
 
 ## deployments
@@ -138,8 +136,8 @@ talosctl kubeconfig --talosconfig=clusterconfig/talosconfig --nodes {endpoint-ad
 ```bash
 helm template \
     cilium cilium/cilium \
-    --kube-version {version} \
-    --version {version} \
+    --kube-version {version} \ # <- EDIT THIS
+    --version {version} \ # <- EDIT THIS
     --namespace cilium-system \
     --set ipam.mode=kubernetes \
     --set kubeProxyReplacement=true \
@@ -147,7 +145,7 @@ helm template \
     --set securityContext.capabilities.cleanCiliumState="{NET_ADMIN,SYS_ADMIN,SYS_RESOURCE}" \
     --set cgroup.autoMount.enabled=false \
     --set cgroup.hostRoot=/sys/fs/cgroup \
-    --set k8sServiceHost={endpoint-ip} \
+    --set k8sServiceHost={endpoint-ip} \ # <- EDIT THIS
     --set k8sServicePort=6443 \
     --set=gatewayAPI.enabled=true \
     --set=gatewayAPI.enableAlpn=true \
@@ -155,7 +153,7 @@ helm template \
     --set hubble.relay.enabled=true \
     --set hubble.ui.enabled=true \
     --set hostFirewall.enabled=true \
-    > cilium-$VERSION.yaml
+    > cilium.yaml
 ```
 ```bash
 kubectl create namespace cilium-system
@@ -163,16 +161,16 @@ kubectl label namespace cilium-system \
     pod-security.kubernetes.io/enforce=privileged \
     pod-security.kubernetes.io/warn=privileged \
     pod-security.kubernetes.io/audit=privileged --overwrite
-kubectl apply -f cilium-{version}.yaml
+kubectl apply -f cilium.yaml
 ```
 ### longhorn
 ```bash
 helm template \
     longhorn longhorn/longhorn \
-    --kube-version {version} \
-    --version {version} \
+    --kube-version {version} \ # <- EDIT THIS
+    --version {version} \ # <- EDIT THIS
     --namespace longhorn-system \
-    > longhorn-{version}.yaml
+    > longhorn.yaml
 ```
 ```bash
 kubectl create namespace longhorn-system
@@ -180,18 +178,18 @@ kubectl label namespace longhorn-system \
     pod-security.kubernetes.io/enforce=privileged \
     pod-security.kubernetes.io/warn=privileged \
     pod-security.kubernetes.io/audit=privileged --overwrite
-kubectl apply -f longhorn-{version}.yaml
+kubectl apply -f longhorn.yaml
 ```
 ### cnpg
 ```bash
 helm template \
     cnpg cnpg/cloudnative-pg \
-    --kube-version {version} \
-    --version {version} \
+    --kube-version {version} \ # <- EDIT THIS
+    --version {version} \ # <- EDIT THIS
     --namespace cnpg-system \
-    > cnpg-{version}.yaml
+    > cnpg.yaml
 ```
 ```bash
 kubectl create namespace cnpg-system
-kubectl apply --server-side -f cnpg-{version}.yaml
+kubectl apply --server-side -f cnpg.yaml
 ```
