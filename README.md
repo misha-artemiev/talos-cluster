@@ -1,5 +1,15 @@
 # talos cluster
 
+## talos
+### arm64
+```bash
+wget -O metal-arm64.iso https://github.com/siderolabs/talos/releases/download/{version}/metal-arm64.iso # <- EDIT THIS
+```
+### amd64
+```bash
+wget -O metal-amd64.iso https://github.com/siderolabs/talos/releases/download/{version}/metal-amd64.iso # <- EDIT THIS
+```
+
 ## .sops.yaml
 ### generate age if doesnt exist
 ```bash
@@ -25,8 +35,8 @@ sops -e -i talsecret.sops.yaml
 ## talconfig.yaml
 ```yaml
 clusterName: {cluster-name} # <- EDIT THIS
-talosVersion: v{version} # <- EDIT THIS
-kubernetesVersion: v{version} # <- EDIT THIS
+talosVersion: {version} # <- EDIT THIS
+kubernetesVersion: {version} # <- EDIT THIS
 endpoint: https://{endpoint-address}:6443 # <- EDIT THIS
 domain: cluster.local
 allowSchedulingOnControlPlanes: false
