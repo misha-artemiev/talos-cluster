@@ -132,3 +132,66 @@ talosctl bootstrap --talosconfig=clusterconfig/talosconfig --nodes {endpoint-add
 ```
 talosctl kubeconfig --talosconfig=clusterconfig/talosconfig --nodes {endpoint-address}
 ```
+
+## deployments
+### cilium
+```
+helm template \
+    cilium cilium/cilium \
+    --kube-version {version} \
+    --version {version} \
+    --namespace cilium-system \
+    --set ipam.mode=kubernetes \
+    --set kubeProxyReplacement=true \
+    --set securityContext.capabilities.ciliumAgent="{CHOWN,KILL,NET_ADMIN,NET_RAW,IPC_LOCK,SYS_ADMIN,SYS_RESOURCE,DAC_OVERRIDE,FOWNER,SETGID,SETUID}" \
+    --set securityContext.capabilities.cleanCiliumState="{NET_ADMIN,SYS_ADMIN,SYS_RESOURCE}" \
+    --set cgroup.autoMount.enabled=false \
+    --set cgroup.hostRoot=/sys/fs/cgroup \
+    --set k8sServiceHost=$ENDPOINT_ADDRESS \
+    --set k8sServicePort=6443 \
+    --set=gatewayAPI.enabled=true \
+    --set=gatewayAPI.enableAlpn=true \
+    --set=gatewayAPI.enableAppProtocol=true \
+    --set hubble.relay.enabled=true \
+    --set hubble.ui.enabled=true \
+    --set hostFirewall.enabled=true \
+    > cilium-$VERSION.yaml
+```
+```
+kubectl create namespace cilium-system
+kubectl label namespace cilium-system \
+    pod-security.kubernetes.io/enforce=privileged \
+    pod-security.kubernetes.io/warn=privileged \
+    pod-security.kubernetes.io/audit=privileged --overwrite
+kubectl apply -f cilium-{version}.yaml
+```
+### longhorn
+```
+helm template \
+    longhorn longhorn/longhorn \
+    --kube-version {version} \
+    --version {version} \
+    --namespace longhorn-system \
+    > longhorn-{version}.yaml
+```
+```
+kubectl create namespace longhorn-system
+kubectl label namespace longhorn-system \
+    pod-security.kubernetes.io/enforce=privileged \
+    pod-security.kubernetes.io/warn=privileged \
+    pod-security.kubernetes.io/audit=privileged --overwrite
+kubectl apply -f longhorn-{version}.yaml
+```
+### cnpg
+```
+helm template \
+    cnpg cnpg/cloudnative-pg \
+    --kube-version {version} \
+    --version {version} \
+    --namespace cnpg-system \
+    > cnpg-{version}.yaml
+```
+```
+kubectl create namespace cnpg-system
+kubectl apply --server-side -f cnpg-{version}.yaml
+```
