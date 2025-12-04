@@ -1,6 +1,7 @@
 # talos cluster
 
-==CHANGE ALL INSTANCES OF {} WHERE PROMPTED==
+> [!IMPORTANT]
+> CHANGE ALL INSTANCES OF {} WHERE PROMPTED
 
 ## talos
 ### arm64
