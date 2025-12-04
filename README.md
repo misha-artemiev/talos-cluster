@@ -91,7 +91,7 @@ worker:
   <<: *common
 ```
 ### additional
-```some
+```
 clusterName: {cluster-name}
 talosVersion: v{version}
 kubernetesVersion: v{version}
