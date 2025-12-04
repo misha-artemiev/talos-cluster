@@ -2,11 +2,11 @@
 
 ## .sops.yaml
 ### generate age if doesnt exist
-```
+```bash
 age-keygen -o $HOME/.config/sops/age/keys.txt
 ```
 ### generate
-```
+```yaml
 creation_rules:
   - age:
     - {key}
@@ -14,11 +14,11 @@ creation_rules:
 
 ## talsecret.sops.yaml
 ### generate
-```
+```bash
 talhelper gensecret > talsecret.sops.yaml
 ```
 ### encrypt
-```
+```bash
 sops -e -i talsecret.sops.yaml
 ```
 
@@ -95,7 +95,7 @@ worker:
   <<: *common
 ```
 ### additional
-```
+```yaml
 clusterName: {cluster-name}
 talosVersion: v{version}
 kubernetesVersion: v{version}
@@ -117,25 +117,25 @@ nodes:
 
 ## talhelper
 ### generate config
-```
+```bash
 talhelper genconfig
 ```
 ### apply config
-```
+```bash
 talhelper gencommand apply --extra-flags --insecure
 ```
 ### bootstrap etcd
-```
+```bash
 talosctl bootstrap --talosconfig=clusterconfig/talosconfig --nodes {endpoint-address}
 ```
 ### local kubeconfig
-```
+```bash
 talosctl kubeconfig --talosconfig=clusterconfig/talosconfig --nodes {endpoint-address}
 ```
 
 ## deployments
 ### cilium
-```
+```bash
 helm template \
     cilium cilium/cilium \
     --kube-version {version} \
@@ -157,7 +157,7 @@ helm template \
     --set hostFirewall.enabled=true \
     > cilium-$VERSION.yaml
 ```
-```
+```bash
 kubectl create namespace cilium-system
 kubectl label namespace cilium-system \
     pod-security.kubernetes.io/enforce=privileged \
@@ -166,7 +166,7 @@ kubectl label namespace cilium-system \
 kubectl apply -f cilium-{version}.yaml
 ```
 ### longhorn
-```
+```bash
 helm template \
     longhorn longhorn/longhorn \
     --kube-version {version} \
@@ -174,7 +174,7 @@ helm template \
     --namespace longhorn-system \
     > longhorn-{version}.yaml
 ```
-```
+```bash
 kubectl create namespace longhorn-system
 kubectl label namespace longhorn-system \
     pod-security.kubernetes.io/enforce=privileged \
@@ -183,7 +183,7 @@ kubectl label namespace longhorn-system \
 kubectl apply -f longhorn-{version}.yaml
 ```
 ### cnpg
-```
+```bash
 helm template \
     cnpg cnpg/cloudnative-pg \
     --kube-version {version} \
@@ -191,7 +191,7 @@ helm template \
     --namespace cnpg-system \
     > cnpg-{version}.yaml
 ```
-```
+```bash
 kubectl create namespace cnpg-system
 kubectl apply --server-side -f cnpg-{version}.yaml
 ```
