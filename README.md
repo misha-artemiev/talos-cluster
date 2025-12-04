@@ -24,7 +24,7 @@ sops -e -i talsecret.sops.yaml
 
 ## talconfig.yaml
 ### default
-```bash
+```yaml
 domain: cluster.local
 allowSchedulingOnControlPlanes: false
 clusterPodNets:
