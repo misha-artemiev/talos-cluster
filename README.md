@@ -1,5 +1,13 @@
 # talos cluster
 
+## sops
+in `.sops.yaml`
+```
+creation_rules:
+  - age:
+    - {key}
+```
+
 ## secrets
 
 ### create secrets
