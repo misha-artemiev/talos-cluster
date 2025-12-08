@@ -211,6 +211,7 @@ helm template \
     --kube-version {version} \ # <- EDIT THIS
     --version {version} \ # <- EDIT THIS
     --namespace envoy-gateway-system \
+    --set deployment.replicas=3 \
     > envoy-gateway.yaml
 ```
 ```bash
@@ -219,5 +220,5 @@ kubectl label namespace envoy-gateway-system \
     pod-security.kubernetes.io/enforce=privileged \
     pod-security.kubernetes.io/warn=privileged \
     pod-security.kubernetes.io/audit=privileged --overwrite
-kubectl apply -f envoy-gateway.yaml
+kubectl apply --server-side -f envoy-gateway.yaml
 ```
