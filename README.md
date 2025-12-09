@@ -251,11 +251,21 @@ watch kubectl get pods -n cert-manager-system
 ### envoy gateway
 ```bash
 helm template \
+    envoy-gateway oci://docker.io/envoyproxy/gateway-crds-helm \
+    --kube-version {version} \ # <- EDIT THIS
+    --version {version} \ # <- EDIT THIS
+    --set crds.gatewayAPI.enabled=true \
+    --set crds.gatewayAPI.channel=standard \
+    --set crds.envoyGateway.enabled=true \
+    > envoy-gateway-crds.yaml
+```
+```bash
+helm template \
     envoy-gateway oci://docker.io/envoyproxy/gateway-helm \
     --kube-version {version} \ # <- EDIT THIS
     --version {version} \ # <- EDIT THIS
     --namespace envoy-gateway-system \
-    --set deployment.replicas=3 \
+    --skip-crds \
     > envoy-gateway.yaml
 ```
 ```bash
@@ -264,40 +274,9 @@ kubectl label namespace envoy-gateway-system \
     pod-security.kubernetes.io/enforce=privileged \
     pod-security.kubernetes.io/warn=privileged \
     pod-security.kubernetes.io/audit=privileged --overwrite
+kubectl apply --server-side -f envoy-gateway-crds.yaml
 kubectl apply --server-side -f envoy-gateway.yaml
 ```
 ```bash
 watch kubectl get pods -n envoy-gateway-system
-```
-```bash
-cat <<EOF | kubectl apply -f -
-apiVersion: gateway.envoyproxy.io/v1alpha1
-kind: EnvoyProxy
-metadata:
-  name: envoy-host-proxy
-  namespace: envoy-gateway-system
-spec:
-  provider:
-    type: Kubernetes
-    kubernetes:
-      envoyDeployment:
-        replicas: 1
-      envoyPod:
-        hostNetwork: true
-EOF
-```
-```bash
-cat <<EOF | kubectl apply -f -
-apiVersion: gateway.networking.k8s.io/v1
-kind: GatewayClass
-metadata:
-  name: envoy-gateway
-spec:
-  controllerName: gateway.envoyproxy.io/gatewayclass-controller
-parametersRef:
-    group: gateway.envoyproxy.io
-    kind: EnvoyProxy
-    name: envoy-host-proxy
-    namespace: envoy-gateway-system
-EOF
 ```
