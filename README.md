@@ -280,20 +280,31 @@ kubectl apply --server-side -f envoy-gateway.yaml
 ```bash
 watch kubectl get pods -n envoy-gateway-system
 ```
+### haproxy
 ```bash
-cat <<EOF | kubectl apply -f -
-apiVersion: gateway.envoyproxy.io/v1alpha1
-kind: EnvoyProxy
-metadata:
-  name: hostnetwork-proxy-config
-  namespace: envoy-gateway-system
-spec:
-  provider:
-    type: Kubernetes
-    kubernetes:
-      envoyDeployment:
-        hostNetwork: true
-      envoyService:
-        type: ClusterIP
-EOF
+helm template \
+    haproxy-ingress haproxy-ingress/haproxy-ingress \
+    --namespace haproxy-system \
+    --kube-version {version} \ # <- EDIT THIS
+    --version {version} \ # <- EDIT THIS
+    --set controller.kind=DaemonSet \
+    --set controller.daemonset.useHostPort=true \
+    --set controller.service.type=ClusterIP \
+    --set controller.ingressClassResource.enabled=true \
+    --set controller.ingressClassResource.default=false \
+    --set controller.tolerations[0].key="node-role.kubernetes.io/control-plane" \
+    --set controller.tolerations[0].operator="Exists" \
+    --set controller.tolerations[0].effect="NoSchedule" \
+    > haproxy.yaml
+```
+```bash
+kubectl create namespace haproxy-system
+kubectl label namespace haproxy-system \
+    pod-security.kubernetes.io/enforce=privileged \
+    pod-security.kubernetes.io/warn=privileged \
+    pod-security.kubernetes.io/audit=privileged --overwrite
+kubectl apply -f haproxy.yaml
+```
+```bash
+watch kubectl get pods -n haproxy-system
 ```
