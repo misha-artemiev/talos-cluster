@@ -172,6 +172,12 @@ helm template \
     > cilium.yaml
 ```
 ```bash
+wget -O gateway-api-crds.yaml https://github.com/kubernetes-sigs/gateway-api/releases/download/{version}/standard-install.yaml # <- EDIT THIS
+```
+```bash
+kubectl apply -f gateway-api-crds.yaml
+```
+```bash
 kubectl create namespace cilium-system
 kubectl label namespace cilium-system \
     pod-security.kubernetes.io/enforce=privileged \
