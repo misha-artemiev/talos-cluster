@@ -4,6 +4,7 @@
 > **CHANGE ALL INSTANCES OF {} WHERE PROMPTED**
 
 > [!CAUTION]
+> **RESET CLUSTER WITHOUT WIPING SYSTEM**
 > ```
 > talosctl reset-k8s --nodes <all-nodes> --reboot
 > talosctl reset-etcd --nodes <control-plane-nodes>
