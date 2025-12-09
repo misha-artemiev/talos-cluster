@@ -292,16 +292,8 @@ spec:
     type: Kubernetes
     kubernetes:
       envoyDaemonSet:
-        patches:
-          - type: JSONPatch
-            operation: add
-            path: /spec/template/spec/hostNetwork
-            value: true
-          - type: JSONPatch
-            operation: add
-            path: /spec/template/spec/dnsPolicy
-            value: ClusterFirstWithHostNet
         pod:
+          hostNetwork: true
           tolerations:
             - key: "node-role.kubernetes.io/control-plane"
               operator: "Exists"
