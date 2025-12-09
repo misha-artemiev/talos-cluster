@@ -237,3 +237,20 @@ kubectl label namespace envoy-gateway-system \
     pod-security.kubernetes.io/audit=privileged --overwrite
 kubectl apply --server-side -f envoy-gateway.yaml
 ```
+### cert-manager
+```bash
+helm template \
+    cert-manager oci://quay.io/jetstack/charts/cert-manager \
+    --kube-version {version} \ # <- EDIT THIS
+    --version {version} \ # <- EDIT THIS
+    --namespace cert-manager-system \
+    --set crds.enabled=true \
+    > cert-manager.yaml
+```
+```bash
+kubectl create namespace cert-manager-system
+kubectl apply -f cert-manager.yaml
+```
+```bash
+watch kubectl get pods -n cert-manager-system
+```
