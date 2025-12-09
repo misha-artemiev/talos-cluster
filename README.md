@@ -164,9 +164,7 @@ helm template \
     --set cgroup.hostRoot=/sys/fs/cgroup \
     --set k8sServiceHost={endpoint-ip} \ # <- EDIT THIS
     --set k8sServicePort=6443 \
-    --set=gatewayAPI.enabled=true \
-    --set=gatewayAPI.enableAlpn=true \
-    --set=gatewayAPI.enableAppProtocol=true \
+    --set=gatewayAPI.enabled=false \
     --set hubble.relay.enabled=true \
     --set hubble.ui.enabled=true \
     --set hostFirewall.enabled=true \
