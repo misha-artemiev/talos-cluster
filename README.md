@@ -15,6 +15,7 @@ wget -O metal-amd64.iso https://github.com/siderolabs/talos/releases/download/{v
 
 ## .sops.yaml
 ```bash
+mkdir -p $HOME/.config/sops/age
 age-keygen -o $HOME/.config/sops/age/keys.txt
 ```
 ```yaml
