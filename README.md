@@ -282,22 +282,17 @@ watch kubectl get pods -n envoy-gateway-system
 ```
 ```bash
 cat <<EOF | kubectl apply -f -
-apiVersion: gateway.envoyproxy.io/v1alpha1
+apiVersion: config.gateway.envoyproxy.io/v1alpha1
 kind: EnvoyProxy
 metadata:
-  name: daemonset-config
+  name: hostnetwork-proxy-config
   namespace: envoy-gateway-system
 spec:
   provider:
     type: Kubernetes
     kubernetes:
-      envoyDaemonSet:
-        pod:
-          hostNetwork: true
-          tolerations:
-            - key: "node-role.kubernetes.io/control-plane"
-              operator: "Exists"
-              effect: "NoSchedule"
+      envoyDaemonSet: {} 
+      envoyDeployment: null
       envoyService:
         type: ClusterIP
 EOF
