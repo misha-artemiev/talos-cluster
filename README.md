@@ -165,6 +165,7 @@ helm template \
     --set k8sServiceHost={endpoint-ip} \ # <- EDIT THIS
     --set k8sServicePort=6443 \
     --set=gatewayAPI.enabled=false \
+    --api-versions='gateway.networking.k8s.io/v1/GatewayClass' \
     --set hubble.relay.enabled=true \
     --set hubble.ui.enabled=true \
     --set hostFirewall.enabled=true \
