@@ -237,6 +237,19 @@ kubectl label namespace envoy-gateway-system \
     pod-security.kubernetes.io/audit=privileged --overwrite
 kubectl apply --server-side -f envoy-gateway.yaml
 ```
+```bash
+watch kubectl get pods -n envoy-gateway-system
+```
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: envoy-gateway
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+EOF
+```
 ### cert-manager
 ```bash
 helm template \
