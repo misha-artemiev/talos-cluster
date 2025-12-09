@@ -143,6 +143,11 @@ talosctl bootstrap --talosconfig=clusterconfig/talosconfig --nodes {endpoint-add
 talosctl kubeconfig --talosconfig=clusterconfig/talosconfig --nodes {endpoint-address} # <- EDIT THIS
 ```
 
+### watch
+``` bash
+watch kubectl get nodes
+```
+
 ## deployments
 ### cilium
 ```bash
@@ -175,6 +180,9 @@ kubectl label namespace cilium-system \
     pod-security.kubernetes.io/audit=privileged --overwrite
 kubectl apply -f cilium.yaml
 ```
+```bash
+watch kubectl get pods -n cilium-system
+```
 ### longhorn
 ```bash
 helm template \
@@ -192,6 +200,9 @@ kubectl label namespace longhorn-system \
     pod-security.kubernetes.io/audit=privileged --overwrite
 kubectl apply -f longhorn.yaml
 ```
+```bash
+watch kubectl get pods -n longhorn-system
+```
 ### cnpg
 ```bash
 helm template \
@@ -204,6 +215,9 @@ helm template \
 ```bash
 kubectl create namespace cnpg-system
 kubectl apply --server-side -f cnpg.yaml
+```
+```bash
+watch kubectl get pods -n cnpg-system
 ```
 ### envoy gateway
 ```bash
