@@ -3,14 +3,6 @@
 > [!IMPORTANT]
 > **CHANGE ALL INSTANCES OF {} WHERE PROMPTED**
 
-> [!CAUTION]
-> **RESET CLUSTER WITHOUT WIPING SYSTEM**
-> ```
-> talosctl reset-k8s --nodes <all-nodes> --reboot
-> talosctl reset-etcd --nodes <control-plane-nodes>
-> talosctl bootstrap --endpoints <cp-ip>
-> ```
-
 ## talos
 ### arm64
 ```bash
@@ -21,11 +13,21 @@ wget -O metal-arm64.iso https://github.com/siderolabs/talos/releases/download/{v
 wget -O metal-amd64.iso https://github.com/siderolabs/talos/releases/download/{version}/metal-amd64.iso # <- EDIT THIS
 ```
 
-## .sops.yaml
-```bash
-mkdir -p $HOME/.config/sops/age
-age-keygen -o $HOME/.config/sops/age/keys.txt
+## .gitignore
+```gitignore
+**/.DS_Store
+**/.vscode
+clusterconfig/
 ```
+
+## .sops.yaml
+> [!IMPORTANT]
+> if you dont have an age key
+>```bash
+>mkdir -p $HOME/.config/sops/age
+>age-keygen -o $HOME/.config/sops/age/keys.txt
+>```
+
 ```yaml
 creation_rules:
   - age:
@@ -112,16 +114,18 @@ commonConfig: &common
                 - rshared
                 - rw
 
-controlPlane:
+commonControl: &common-worker
+  controlPanel: true
   <<: *common
-worker:
+commonWorker: &common-control
+  controlPanel: false
   <<: *common
 
 nodes:
   - hostname: {node-name} # <- EDIT THIS
+    {<<: *common-worker or <<: *common-control}
     ipAddress: {node-ip} # <- EDIT THIS
     installDisk: /dev/{node-install-disk} # <- EDIT THIS
-    controlPlane: {is-control-panel}
     networkInterfaces:
       - interface: {network-interface-name} # <- EDIT THIS
         addresses:
@@ -158,32 +162,59 @@ watch kubectl get nodes
 
 ## deployments
 ### cilium
+#### add helm repo
+```bash
+helm repo add cilium https://helm.cilium.io/
+helm repo update
+```
+#### get values
+```bash
+helm show values cilium/cilium > cilium-values.yaml
+```
+#### values example
+```yaml
+ipam:
+  mode=kubernetes
+kubeProxyReplacement=true
+securityContext:
+  capabilities:
+    ciliumAgent="{CHOWN,KILL,NET_ADMIN,NET_RAW,IPC_LOCK,SYS_ADMIN,SYS_RESOURCE,DAC_OVERRIDE,FOWNER,SETGID,SETUID}"
+    cleanCiliumState="{NET_ADMIN,SYS_ADMIN,SYS_RESOURCE}"
+cgroup:
+  autoMount:
+    enabled=false
+  hostRoot=/sys/fs/cgroup
+k8sServiceHost={endpoint-ip}
+k8sServicePort=6443
+gatewayAPI:
+  enabled=false
+hubble: 
+  relay:
+    enabled=true
+  ui:
+    enabled=true
+hostFirewall:
+  enabled=true
+```
+#### create template
 ```bash
 helm template \
     cilium cilium/cilium \
     --kube-version {version} \ # <- EDIT THIS
     --version {version} \ # <- EDIT THIS
     --namespace cilium-system \
-    --set ipam.mode=kubernetes \
-    --set kubeProxyReplacement=true \
-    --set securityContext.capabilities.ciliumAgent="{CHOWN,KILL,NET_ADMIN,NET_RAW,IPC_LOCK,SYS_ADMIN,SYS_RESOURCE,DAC_OVERRIDE,FOWNER,SETGID,SETUID}" \
-    --set securityContext.capabilities.cleanCiliumState="{NET_ADMIN,SYS_ADMIN,SYS_RESOURCE}" \
-    --set cgroup.autoMount.enabled=false \
-    --set cgroup.hostRoot=/sys/fs/cgroup \
-    --set k8sServiceHost={endpoint-ip} \ # <- EDIT THIS
-    --set k8sServicePort=6443 \
-    --set=gatewayAPI.enabled=false \
-    --set hubble.relay.enabled=true \
-    --set hubble.ui.enabled=true \
-    --set hostFirewall.enabled=true \
+    --values cilium-values.yaml \
     > cilium.yaml
 ```
+#### get gateway crds yaml
 ```bash
 wget -O gateway-api-crds.yaml https://github.com/kubernetes-sigs/gateway-api/releases/download/{version}/standard-install.yaml # <- EDIT THIS
 ```
+#### apply gateway crds
 ```bash
 kubectl apply -f gateway-api-crds.yaml
 ```
+#### apply cilium
 ```bash
 kubectl create namespace cilium-system
 kubectl label namespace cilium-system \
@@ -192,6 +223,7 @@ kubectl label namespace cilium-system \
     pod-security.kubernetes.io/audit=privileged --overwrite
 kubectl apply -f cilium.yaml
 ```
+#### watch cilium
 ```bash
 watch kubectl get pods -n cilium-system
 ```
