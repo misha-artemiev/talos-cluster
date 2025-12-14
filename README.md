@@ -163,6 +163,13 @@ talosctl kubeconfig --talosconfig=clusterconfig/talosconfig --nodes {endpoint-ad
 ``` bash
 watch kubectl get nodes
 ```
+### roles
+```bash
+kubectl label node <node-name> node-role.kubernetes.io/worker=""
+```
+```bash
+kubectl label node <node-name> node-role.kubernetes.io/edge=""
+```
 
 ## deployments
 ### cilium
