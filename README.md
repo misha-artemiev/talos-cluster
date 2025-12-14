@@ -114,27 +114,31 @@ commonConfig: &common
                 - rshared
                 - rw
 
-commonControl: &common-worker
-  controlPanel: true
+controlPlane:
   <<: *common
-commonWorker: &common-control
-  controlPanel: false
+worker:
   <<: *common
 
 nodes:
-  - hostname: {node-name} # <- EDIT THIS
-    {<<: *common-worker or <<: *common-control}
-    ipAddress: {node-ip} # <- EDIT THIS
-    installDisk: /dev/{node-install-disk} # <- EDIT THIS
+  - hostname: node-0
+    controlPlane: false
+    nodeTaints:
+      node-role.kubernetes.io/edge: "true:NoSchedule"
+    nodeLabels:
+      node-role.kubernetes.io/edge: "true"
+      node-role.kubernetes.io/worker: "true"
+      node-role.kubernetes.io/control-plane: "true"
+      machine: netcup-v22.....
+    ipAddress: 192.168.0.10
+    installDisk: /dev/vda
     networkInterfaces:
-      - interface: {network-interface-name} # <- EDIT THIS
+      - interface: ens3
         addresses:
-          - {node-ip}/{node-ip-cidr} # <- EDIT THIS
+          - 192.168.0.10/22
         routes:
           - network: 0.0.0.0/0
-            gateway: {node-ip-gateway} # <- EDIT THIS
+            gateway: 192.168.0.1
         dhcp: false
-  - ... # <- ADD MORE
 ```
 
 ## talhelper
