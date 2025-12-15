@@ -262,6 +262,24 @@ kubectl apply --server-side -f gateway-api-crds.yaml
 ```bash
 watch kubectl get pods -n cilium-system
 ```
+### metrics-server
+#### get yaml
+```bash
+wget -O metrics-server.yaml https://github.com/kubernetes-sigs/metrics-server/releases/download/{version}/high-availability-1.21+.yaml # <- EDIT THIS
+```
+#### fix self signed tls
+```bash
+sed -i '' 's/args:/args:\
+        - --kubelet-insecure-tls/' metrics-server.yaml
+```
+#### apply metrics-server
+```
+kubectl apply -f metrics-server.yaml
+```
+#### watch metrics-server
+```bash
+watch kubectl get pods -n kube-system
+```
 ### longhorn
 #### add helm repo
 ```bash
