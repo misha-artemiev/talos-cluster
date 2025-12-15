@@ -386,6 +386,47 @@ kubectl apply -f cert-manager.yaml
 ```bash
 watch kubectl get pods -n cert-manager-system
 ```
+#### cloudflare dns issuer (cloudflare-dns-issuer.yaml)
+> [!IMPORTANT]
+> User Profile > API Tokens > API Tokens
+> * Permissions:
+>   * Zone - DNS - Edit
+>   * Zone - Zone - Read
+> * Zone Resources:
+>   * Include - All Zones
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cloudflare-api-token-secret
+  namespace: cert-manager-system
+type: Opaque
+stringData:
+  api-token: {token} # <- EDIT THIS
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: cloudflare-dns-issuer
+  namespace: cert-manager-system
+spec:
+  acme:
+    email: {email} # <- EDIT THIS
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: issuer-account-key-secret
+    solvers:
+    - dns01:
+        cloudflare:
+          email: {email} # <- EDIT THIS
+          apiTokenSecretRef:
+            name: cloudflare-api-token-secret
+            key: api-token
+```
+#### apply cloudflare issuer
+```bash
+kubectl apply -f cloudflare-dns-issuer.yaml
+```
 ### envoy-gateway
 #### show versions
 ```bash
@@ -443,12 +484,12 @@ kubectl apply --server-side -f envoy-gateway.yaml
 ```bash
 watch kubectl get pods -n envoy-gateway-system
 ```
-#### gateway yaml (envoy-gateway-main.yaml)
+#### gateway yaml (envoy-gateway-default.yaml)
 ```yaml
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: EnvoyProxy
 metadata:
-  name: custom-proxy-config
+  name: envoy-gateway-config
   namespace: envoy-gateway-system
 spec:
   provider:
@@ -466,13 +507,13 @@ spec:
   parametersRef:
     group: gateway.envoyproxy.io
     kind: EnvoyProxy
-    name: custom-proxy-config
+    name: envoy-gateway-config
     namespace: envoy-gateway-system
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: main
+  name: envoy-gateway
   namespace: envoy-gateway-system
 spec:
   gatewayClassName: envoy-gateway-class
@@ -480,11 +521,20 @@ spec:
     - name: http
       protocol: HTTP
       port: 80
+      hostname: "*"
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: "*"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: domain-waildcard-tls
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: pretty-gateway
+  name: envoy-gateway-static
   namespace: envoy-gateway-system
 spec:
   type: ClusterIP
@@ -493,29 +543,33 @@ spec:
       port: 80
       targetPort: 10080
       protocol: TCP
+    - name: https
+      port: 443
+      targetPort: 10443
+      protocol: TCP
   selector:
-    gateway.envoyproxy.io/owning-gateway-name: main
+    gateway.envoyproxy.io/owning-gateway-name: envoy-gateway
     gateway.envoyproxy.io/owning-gateway-namespace: envoy-gateway-system
 ```
 #### apply gateway
 ```bash
-kubectl apply -f envoy-gateway-main.yaml
+kubectl apply -f envoy-gateway-default.yaml
 ```
-### proxy deployment yaml (envoy-gateway-haproxy.yaml)
+#### proxy deployment yaml (envoy-gateway-haproxy.yaml)
 ```yaml
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: envoy-gateway-haproxy-proxy
+  name: envoy-gateway-haproxy
   namespace: envoy-gateway-system
 spec:
   selector:
     matchLabels:
-      app: envoy-gateway-haproxy-proxy
+      app: envoy-gateway-haproxy
   template:
     metadata:
       labels:
-        app: envoy-gateway-haproxy-proxy
+        app: envoy-gateway-haproxy
     spec:
       nodeSelector:
         node-role.kubernetes.io/edge: ""
@@ -530,6 +584,14 @@ spec:
             - name: tcp
               containerPort: 80
               hostPort: 80
+              protocol: TCP
+            - name: tcp
+              containerPort: 443
+              hostPort: 443
+              protocol: TCP
+            - name: tcp
+              containerPort: 22
+              hostPort: 22
               protocol: TCP
           volumeMounts:
             - name: envoy-gateway-haproxy-config
@@ -562,14 +624,34 @@ data:
         parse-resolv-conf
         hold valid 10s
 
-    frontend tcp_front
+    frontend http_front
         bind *:80
         mode tcp
-        default_backend envoy_tcp
+        default_backend envoy_gateway_http
 
-    backend envoy_tcp
+    backend envoy_gateway_http
         mode tcp
-        server envoy pretty-gateway.envoy-gateway-system.svc.cluster.local:80 check resolvers k8s_dns init-addr none
+        server envoy envoy-gateway-static.envoy-gateway-system.svc.cluster.local:80 check resolvers k8s_dns init-addr none
+
+    frontend https_front
+        bind *:443
+        mode tcp
+        default_backend envoy_gateway_https
+
+    backend envoy_gateway_https
+        mode tcp
+        server envoy envoy-gateway-static.envoy-gateway-system.svc.cluster.local:443 check resolvers k8s_dns init-addr none
+
+    frontend ssh_front
+        bind *:22
+        mode tcp
+        timeout client 2h
+        default_backend envoy_gateway_ssh
+
+    backend envoy_gateway_ssh
+        mode tcp
+        timeout server 2h
+        server envoy envoy-gateway-static.envoy-gateway-system.svc.cluster.local:22 check resolvers k8s_dns init-addr none
 ```
 #### apply proxy deployment
 ```bash
