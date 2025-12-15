@@ -350,7 +350,7 @@ watch kubectl get pods -n cnpg-system
 ### cert-manager
 #### show versions
 ```bash
-helm search repo oci://quay.io/jetstack/charts/cert-manager --versions | head
+crane ls quay.io/jetstack/charts/cert-manager | tail
 ```
 #### get values
 ```bash
