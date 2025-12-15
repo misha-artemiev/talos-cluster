@@ -313,12 +313,30 @@ watch kubectl get pods -n longhorn-system
 kubectl -n longhorn-system port-forward svc/longhorn-frontend 8080:80
 ```
 ### cnpg
+#### add helm repo
+```bash
+helm repo add cnpg https://cloudnative-pg.github.io/charts
+helm repo update
+```
+#### show versions
+```bash
+helm search repo cnpg/cloudnative-pg --versions | head
+```
+#### get values
+```bash
+helm show values cnpg/cloudnative-pg --version {version} > cnpg-values.yaml # <- EDIT THIS
+```
+#### an configuration
+```yaml
+```
+#### create template
 ```bash
 helm template \
     cnpg cnpg/cloudnative-pg \
     --kube-version {version} \ # <- EDIT THIS
     --version {version} \ # <- EDIT THIS
     --namespace cnpg-system \
+    --values cnpg-values.yaml \
     > cnpg.yaml
 ```
 ```bash
