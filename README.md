@@ -364,6 +364,16 @@ wget -O cert-manager-crds.yaml https://github.com/cert-manager/cert-manager/rele
 ```yaml
 installCRDs: false
 replicaCount: 3
+securityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
 ```
 #### create template
 ```bash
