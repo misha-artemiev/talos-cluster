@@ -122,13 +122,17 @@ worker:
 nodes:
   - hostname: node-0
     controlPlane: false
-    nodeTaints:
-      node-role.kubernetes.io/edge: "true:NoSchedule"
-    nodeLabels:
-      node-role.kubernetes.io/edge: "true"
-      node-role.kubernetes.io/worker: "true"
-      node-role.kubernetes.io/control-plane: "true"
+    nodeAnnotations:
       machine: netcup-v22.....
+    patches:
+      - |-
+        machine:
+          kubelet:
+            extraConfig:
+              registerWithTaints:
+                - key: node.kubernetes.io/edge
+                  value: "true"
+                  effect: NoSchedule
     ipAddress: 192.168.0.10
     installDisk: /dev/vda
     networkInterfaces:
@@ -182,30 +186,20 @@ helm repo update
 ```bash
 helm show values cilium/cilium > cilium-values.yaml
 ```
-#### values example
+#### an configuration
 ```yaml
-ipam:
-  mode=kubernetes
+ipam.mode=kubernetes
 kubeProxyReplacement=true
-securityContext:
-  capabilities:
-    ciliumAgent="{CHOWN,KILL,NET_ADMIN,NET_RAW,IPC_LOCK,SYS_ADMIN,SYS_RESOURCE,DAC_OVERRIDE,FOWNER,SETGID,SETUID}"
-    cleanCiliumState="{NET_ADMIN,SYS_ADMIN,SYS_RESOURCE}"
-cgroup:
-  autoMount:
-    enabled=false
-  hostRoot=/sys/fs/cgroup
-k8sServiceHost={endpoint-ip}
+securityContext.capabilities.ciliumAgent="{CHOWN,KILL,NET_ADMIN,NET_RAW,IPC_LOCK,SYS_ADMIN,SYS_RESOURCE,DAC_OVERRIDE,FOWNER,SETGID,SETUID}"
+securityContext.capabilities.cleanCiliumState="{NET_ADMIN,SYS_ADMIN,SYS_RESOURCE}"
+cgroup.autoMount.enabled=false
+cgroup.hostRoot=/sys/fs/cgroup
+k8sServiceHost={endpoint-ip} # <- EDIT THIS
 k8sServicePort=6443
-gatewayAPI:
-  enabled=false
-hubble: 
-  relay:
-    enabled=true
-  ui:
-    enabled=true
-hostFirewall:
-  enabled=true
+gatewayAPI.enabled=false
+hubble.relay.enabled=true
+hubble.ui.enabled=true
+hostFirewall.enabled=true
 ```
 #### create template
 ```bash
@@ -217,7 +211,7 @@ helm template \
     --values cilium-values.yaml \
     > cilium.yaml
 ```
-#### get gateway crds yaml
+#### get kubernetes gateway crds
 ```bash
 wget -O gateway-api-crds.yaml https://github.com/kubernetes-sigs/gateway-api/releases/download/{version}/standard-install.yaml # <- EDIT THIS
 ```
