@@ -397,6 +397,20 @@ helm show values oci://docker.io/envoyproxy/gateway-crds-helm --version {version
 ```
 #### an configuration
 ```yaml
+service:
+  type: "ClusterIP"
+deployment:
+  replicas: 3
+crds:
+  gatewayAPI:
+    enabled: true
+    channel: standard
+  envoyGateway:
+    enabled: true
+config:
+  envoyGateway:
+    extensionApis:
+      enableBackend: true
 ```
 #### get templates
 ```bash
