@@ -364,16 +364,6 @@ wget -O cert-manager-crds.yaml https://github.com/cert-manager/cert-manager/rele
 ```yaml
 installCRDs: false
 replicaCount: 3
-securityContext:
-  runAsNonRoot: true
-  seccompProfile:
-    type: RuntimeDefault
-containerSecurityContext:
-  allowPrivilegeEscalation: false
-  capabilities:
-    drop:
-      - ALL
-  readOnlyRootFilesystem: true
 ```
 #### create template
 ```bash
@@ -388,6 +378,10 @@ helm template \
 #### apply crds
 ```bash
 kubectl create namespace cert-manager-system
+kubectl label namespace cert-manager-system \
+  pod-security.kubernetes.io/enforce=baseline \
+  pod-security.kubernetes.io/warn=restricted \
+  pod-security.kubernetes.io/audit=restricted
 kubectl apply -f cert-manager-crds.yaml
 ```
 #### apply cert-manager
