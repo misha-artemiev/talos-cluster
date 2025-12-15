@@ -186,9 +186,9 @@ helm repo update
 ```bash
 helm show values cilium/cilium > cilium-values.yaml
 ```
-#### search versions
+#### show versions
 ```bash
-helm search repo cilium/cilium --versions
+helm search repo cilium/cilium --versions | head
 ```
 
 #### an configuration
