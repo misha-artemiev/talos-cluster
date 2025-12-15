@@ -182,13 +182,13 @@ kubectl label node <node-name> node-role.kubernetes.io/edge=""
 helm repo add cilium https://helm.cilium.io/
 helm repo update
 ```
-#### get values
-```bash
-helm show values cilium/cilium > cilium-values.yaml
-```
 #### show versions
 ```bash
 helm search repo cilium/cilium --versions | head
+```
+#### get values
+```bash
+helm show values cilium/cilium --version {version} > cilium-values.yaml # <- EDIT THIS
 ```
 
 #### an configuration
