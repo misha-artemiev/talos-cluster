@@ -244,17 +244,14 @@ helm template \
 ```bash
 wget -O gateway-api-crds.yaml https://github.com/kubernetes-sigs/gateway-api/releases/download/{version}/standard-install.yaml # <- EDIT THIS
 ```
-#### apply gateway crds
-```bash
-kubectl apply -f gateway-api-crds.yaml
-```
-#### apply cilium
+#### apply cilium and gateway crds
 ```bash
 kubectl create namespace cilium-system
 kubectl label namespace cilium-system \
     pod-security.kubernetes.io/enforce=privileged \
     pod-security.kubernetes.io/warn=privileged \
     pod-security.kubernetes.io/audit=privileged --overwrite
+kubectl apply -f gateway-api-crds.yaml
 kubectl apply -f cilium.yaml
 ```
 #### watch cilium
@@ -375,7 +372,7 @@ helm template \
     --values cert-manager-values.yaml \
     > cert-manager.yaml
 ```
-#### apply crds
+#### apply cert-manager and crds
 ```bash
 kubectl create namespace cert-manager-system
 kubectl label namespace cert-manager-system \
@@ -383,35 +380,42 @@ kubectl label namespace cert-manager-system \
   pod-security.kubernetes.io/warn=baseline \
   pod-security.kubernetes.io/audit=restricted
 kubectl apply --namespace cert-manager-system -f cert-manager-crds.yaml
-```
-#### apply cert-manager
-```bash
 kubectl apply -f cert-manager.yaml
 ```
 #### watch cert-manager
 ```bash
 watch kubectl get pods -n cert-manager-system
 ```
-### envoy gateway
+### envoy-gateway
+#### show versions
+```bash
+crane ls oci://docker.io/envoyproxy/gateway-crds-helm | tail
+```
+#### get values
+```bash
+helm show values oci://docker.io/envoyproxy/gateway-crds-helm --version {version} > envoy-gateway-values.yaml # <- EDIT THIS
+```
+#### an configuration
+```yaml
+```
+#### get templates
 ```bash
 helm template \
     envoy-gateway oci://docker.io/envoyproxy/gateway-crds-helm \
     --kube-version {version} \ # <- EDIT THIS
     --version {version} \ # <- EDIT THIS
-    --set crds.gatewayAPI.enabled=true \
-    --set crds.gatewayAPI.channel=standard \
-    --set crds.envoyGateway.enabled=true \
+    --values envoy-gateway-values.yaml \
     > envoy-gateway-crds.yaml
-```
-```bash
 helm template \
     envoy-gateway oci://docker.io/envoyproxy/gateway-helm \
     --kube-version {version} \ # <- EDIT THIS
     --version {version} \ # <- EDIT THIS
     --namespace envoy-gateway-system \
+    --values envoy-gateway-values.yaml \
     --skip-crds \
     > envoy-gateway.yaml
 ```
+#### apply envoy-gateway and crds
 ```bash
 kubectl create namespace envoy-gateway-system
 kubectl label namespace envoy-gateway-system \
@@ -421,34 +425,7 @@ kubectl label namespace envoy-gateway-system \
 kubectl apply --server-side -f envoy-gateway-crds.yaml
 kubectl apply --server-side -f envoy-gateway.yaml
 ```
+#### watch envoy-gateway
 ```bash
 watch kubectl get pods -n envoy-gateway-system
-```
-### haproxy
-```bash
-helm template \
-    haproxy-ingress haproxy-ingress/haproxy-ingress \
-    --namespace haproxy-system \
-    --kube-version {version} \ # <- EDIT THIS
-    --version {version} \ # <- EDIT THIS
-    --set controller.kind=DaemonSet \
-    --set controller.daemonset.useHostPort=true \
-    --set controller.service.type=ClusterIP \
-    --set controller.ingressClassResource.enabled=true \
-    --set controller.ingressClassResource.default=false \
-    --set controller.tolerations[0].key="node-role.kubernetes.io/control-plane" \
-    --set controller.tolerations[0].operator="Exists" \
-    --set controller.tolerations[0].effect="NoSchedule" \
-    > haproxy.yaml
-```
-```bash
-kubectl create namespace haproxy-system
-kubectl label namespace haproxy-system \
-    pod-security.kubernetes.io/enforce=privileged \
-    pod-security.kubernetes.io/warn=privileged \
-    pod-security.kubernetes.io/audit=privileged --overwrite
-kubectl apply -f haproxy.yaml
-```
-```bash
-watch kubectl get pods -n haproxy-system
 ```
