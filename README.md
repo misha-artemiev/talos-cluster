@@ -275,6 +275,17 @@ helm search repo longhorn/longhorn --versions | head
 ```bash
 helm show values longhorn/longhorn --version {version} > longhorn-values.yaml # <- EDIT THIS
 ```
+#### an configuration
+```yaml
+persistence:
+  defaultClass: false
+global:
+  tolerations:
+    - key: node.kubernetes.io/edge
+      operator: "Exists"
+      effect:
+```
+#### create template
 ```bash
 helm template \
     longhorn longhorn/longhorn \
@@ -284,6 +295,7 @@ helm template \
     --values longhorn-values.yaml \
     > longhorn.yaml
 ```
+#### apply longhorn
 ```bash
 kubectl create namespace longhorn-system
 kubectl label namespace longhorn-system \
@@ -292,11 +304,13 @@ kubectl label namespace longhorn-system \
     pod-security.kubernetes.io/audit=privileged --overwrite
 kubectl apply -f longhorn.yaml
 ```
+#### watch longhorn
 ```bash
 watch kubectl get pods -n longhorn-system
 ```
 #### port forward
 ```bash
+kubectl -n longhorn-system port-forward svc/longhorn-frontend 8080:80
 ```
 ### cnpg
 ```bash
