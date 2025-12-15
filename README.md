@@ -389,7 +389,7 @@ watch kubectl get pods -n cert-manager-system
 ### envoy-gateway
 #### show versions
 ```bash
-crane ls oci://docker.io/envoyproxy/gateway-crds-helm | tail
+crane ls docker.io/envoyproxy/gateway-crds-helm | tail
 ```
 #### get values
 ```bash
