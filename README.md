@@ -445,26 +445,41 @@ watch kubectl get pods -n envoy-gateway-system
 ```
 #### gateway yaml (envoy-gateway-gateway.yaml)
 ```yaml
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: envoy-gateway-proxy
+  namespace: envoy-gateway-system
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        type: ClusterIP
+---
 apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass
 metadata:
   name: envoy-gateway-class
 spec:
   controllerName: gateway.envoyproxy.io/gatewayclass-controller
+  parametersRef:
+    group: gateway.envoyproxy.io
+    kind: EnvoyProxy
+    name: envoy-gateway-proxy
+    namespace: envoy-gateway-system
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: envoy-gateway
+  name: envoy-http-gateway
+  namespace: envoy-gateway-system
 spec:
   gatewayClassName: envoy-gateway-class
   listeners:
     - name: http
       protocol: HTTP
       port: 80
-    - name: https
-      protocol https
-      port: 443
 ```
 #### apply gateway
 ```bash
