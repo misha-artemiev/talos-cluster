@@ -356,9 +356,14 @@ crane ls quay.io/jetstack/charts/cert-manager | tail
 ```bash
 helm show values oci://quay.io/jetstack/charts/cert-manager --version {version} > cert-manager-values.yaml # <- EDIT THIS
 ```
+#### get crds
+```bash
+wget -O cert-manager-crds.yaml https://github.com/cert-manager/cert-manager/releases/download/{version}/cert-manager.crds.yaml # <- EDIT THIS
+```
 #### an configuration
 ```yaml
-
+installCRDs: false
+replicaCount: 3
 ```
 #### create template
 ```bash
@@ -370,9 +375,13 @@ helm template \
     --values cert-manager-values.yaml
     > cert-manager.yaml
 ```
-#### apply cert-manager
+#### apply crds
 ```bash
 kubectl create namespace cert-manager-system
+kubectl apply -f cert-manager-crds.yaml
+```
+#### apply cert-manager
+```bash
 kubectl apply -f cert-manager.yaml
 ```
 #### watch cert-manager
