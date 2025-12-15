@@ -174,6 +174,10 @@ kubectl label node <node-name> node-role.kubernetes.io/worker=""
 ```bash
 kubectl label node <node-name> node-role.kubernetes.io/edge=""
 ```
+```bash
+kubectl label node <node-name> node-role.kubernetes.io/control-plane=""
+
+```
 
 ## deployments
 ### cilium
@@ -443,6 +447,8 @@ kubectl apply --server-side -f envoy-gateway.yaml
 ```bash
 watch kubectl get pods -n envoy-gateway-system
 ```
+> [!IMPORTANT]
+> its better to comment https part of an gateway until certificate is created
 #### cloudflare dns issuer (cloudflare-dns-issuer.yaml)
 > [!IMPORTANT]
 > User Profile > API Tokens > API Tokens
@@ -497,6 +503,10 @@ spec:
     kubernetes:
       envoyService:
         type: ClusterIP
+      envoyDeployment:
+        pod:
+          annotations:
+             gateway.envoyproxy.io/enable-proxy-protocol: "true"
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass
@@ -532,7 +542,8 @@ spec:
       tls:
         mode: Terminate
         certificateRefs:
-          - name: domain-waildcard-tls
+          - kind: Secret
+            name: domain-waildcard-tls
       allowedRoutes:
         namespaces:
           from: Same
@@ -641,7 +652,7 @@ data:
 
     backend envoy_gateway_http
         mode tcp
-        server envoy envoy-gateway-static.envoy-gateway-system.svc.cluster.local:80 check resolvers k8s_dns init-addr none
+        server envoy envoy-gateway-static.envoy-gateway-system.svc.cluster.local:80 check resolvers k8s_dns init-addr none send-proxy-v2
 
     frontend https_front
         bind *:443
@@ -650,7 +661,7 @@ data:
 
     backend envoy_gateway_https
         mode tcp
-        server envoy envoy-gateway-static.envoy-gateway-system.svc.cluster.local:443 check resolvers k8s_dns init-addr none
+        server envoy envoy-gateway-static.envoy-gateway-system.svc.cluster.local:443 check resolvers k8s_dns init-addr none send-proxy-v2
 
     frontend ssh_front
         bind *:22
@@ -661,9 +672,26 @@ data:
     backend envoy_gateway_ssh
         mode tcp
         timeout server 2h
-        server envoy envoy-gateway-static.envoy-gateway-system.svc.cluster.local:22 check resolvers k8s_dns init-addr none
+        server envoy envoy-gateway-static.envoy-gateway-system.svc.cluster.local:22 check resolvers k8s_dns init-addr none send-proxy-v2
 ```
 #### apply proxy deployment
 ```bash
 kubectl apply -f envoy-gateway-haproxy.yaml
+```
+#### request dns certificate (domain-tls.yaml)
+```yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: domain-wildcard-cert
+  namespace: envoy-gateway-system
+spec:
+  secretName: domain-waildcard-tls
+  issuerRef:
+    name: cloudflare-dns-issuer
+    kind: Issuer
+  commonName: domain.com
+  dnsNames:
+  - "domain.com"
+  - "*.domain.com"
 ```
