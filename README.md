@@ -443,3 +443,35 @@ kubectl apply --server-side -f envoy-gateway.yaml
 ```bash
 watch kubectl get pods -n envoy-gateway-system
 ```
+#### proxy (envoy-gateway-deploy-proxy.yaml)
+```yaml
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: edge-proxy
+  namespace: envoy-gateway-system
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyDeployment:
+        replicas: 1
+        pod:
+          hostNetwork: true
+          dnsPolicy: ClusterFirstWithHostNet
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: node-role.kubernetes.io/edge
+                    operator: In
+                    values:
+                    - "true"
+      envoyService:
+        type: ClusterIP
+```
+#### apply proxy
+```bash
+kubectl apply -n envoy-gateway-system -f envoy-gateway-deploy-proxy.yaml
+```
