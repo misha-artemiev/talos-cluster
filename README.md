@@ -372,7 +372,7 @@ helm template \
     --kube-version {version} \ # <- EDIT THIS
     --version {version} \ # <- EDIT THIS
     --namespace cert-manager-system \
-    --values cert-manager-values.yaml
+    --values cert-manager-values.yaml \
     > cert-manager.yaml
 ```
 #### apply crds
