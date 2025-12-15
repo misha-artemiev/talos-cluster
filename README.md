@@ -364,6 +364,9 @@ wget -O cert-manager-crds.yaml https://github.com/cert-manager/cert-manager/rele
 ```yaml
 installCRDs: false
 replicaCount: 3
+webhook:
+  dynamicCertificateServing: false
+  tlsSecretName: cert-manager-webhook-tls
 ```
 #### create template
 ```bash
