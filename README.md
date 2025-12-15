@@ -262,12 +262,26 @@ kubectl apply -f cilium.yaml
 watch kubectl get pods -n cilium-system
 ```
 ### longhorn
+#### add helm repo
+```bash
+helm repo add longhorn https://charts.longhorn.io
+helm repo update
+```
+#### show versions
+```bash
+helm search repo longhorn/longhorn --versions | head
+```
+#### get values
+```bash
+helm show values longhorn/longhorn --version {version} > longhorn-values.yaml # <- EDIT THIS
+```
 ```bash
 helm template \
     longhorn longhorn/longhorn \
     --kube-version {version} \ # <- EDIT THIS
     --version {version} \ # <- EDIT THIS
     --namespace longhorn-system \
+    --values longhorn-values.yaml \
     > longhorn.yaml
 ```
 ```bash
@@ -280,6 +294,9 @@ kubectl apply -f longhorn.yaml
 ```
 ```bash
 watch kubectl get pods -n longhorn-system
+```
+#### port forward
+```bash
 ```
 ### cnpg
 ```bash
