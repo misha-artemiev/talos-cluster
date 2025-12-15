@@ -491,7 +491,7 @@ spec:
   ports:
     - name: http
       port: 80
-      targetPort: 10080 # Default Envoy Gateway HTTP target port
+      targetPort: 10080
       protocol: TCP
   selector:
     gateway.envoyproxy.io/owning-gateway-name: main
@@ -557,6 +557,10 @@ data:
         timeout connect 10s
         timeout client 1m
         timeout server 1m
+
+    resolvers k8s_dns
+        parse-resolv-conf
+        hold valid 10s
 
     frontend tcp_front
         bind *:80
