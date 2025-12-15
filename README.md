@@ -186,6 +186,11 @@ helm repo update
 ```bash
 helm show values cilium/cilium > cilium-values.yaml
 ```
+#### search versions
+```bash
+helm search repo cilium/cilium --versions
+```
+
 #### an configuration
 ```yaml
 ipam.mode=kubernetes
