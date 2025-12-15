@@ -443,12 +443,12 @@ kubectl apply --server-side -f envoy-gateway.yaml
 ```bash
 watch kubectl get pods -n envoy-gateway-system
 ```
-#### gateway yaml (envoy-gateway-gateway.yaml)
+#### gateway yaml (envoy-gateway-main.yaml)
 ```yaml
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: EnvoyProxy
 metadata:
-  name: envoy-gateway-proxy
+  name: custom-proxy-config
   namespace: envoy-gateway-system
 spec:
   provider:
@@ -466,13 +466,13 @@ spec:
   parametersRef:
     group: gateway.envoyproxy.io
     kind: EnvoyProxy
-    name: envoy-gateway-proxy
+    name: custom-proxy-config
     namespace: envoy-gateway-system
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: envoy-http-gateway
+  name: main
   namespace: envoy-gateway-system
 spec:
   gatewayClassName: envoy-gateway-class
@@ -480,10 +480,26 @@ spec:
     - name: http
       protocol: HTTP
       port: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pretty-gateway
+  namespace: envoy-gateway-system
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: 10080 # Default Envoy Gateway HTTP target port
+      protocol: TCP
+  selector:
+    gateway.envoyproxy.io/owning-gateway-name: main
+    gateway.envoyproxy.io/owning-gateway-namespace: envoy-gateway-system
 ```
 #### apply gateway
 ```bash
-kubectl apply -f envoy-gateway-gateway.yaml
+kubectl apply -f envoy-gateway-main.yaml
 ```
 ### proxy deployment yaml (envoy-gateway-haproxy.yaml)
 ```yaml
@@ -549,7 +565,7 @@ data:
 
     backend envoy_tcp
         mode tcp
-        server envoy envoy-gateway.envoy-gateway-system.svc.cluster.local:18000:80 check
+        server envoy pretty-gateway.envoy-gateway-system.svc.cluster.local:80 check resolvers k8s_dns init-addr none
 ```
 #### apply proxy deployment
 ```bash
