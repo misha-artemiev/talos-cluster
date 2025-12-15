@@ -193,12 +193,12 @@ helm search repo cilium/cilium --versions | head
 
 #### an configuration
 ```yaml
-**ipam:**
-  **mode:** kubernetes
-**kubeProxyReplacement:** true
-**securityContext:**
-  **capabilities:**
-    **ciliumAgent:**
+ipam:
+  mode: kubernetes
+kubeProxyReplacement: true
+securityContext:
+  capabilities:
+    ciliumAgent:
       - CHOWN
       - KILL
       - NET_ADMIN
@@ -210,25 +210,25 @@ helm search repo cilium/cilium --versions | head
       - FOWNER
       - SETGID
       - SETUID
-    **cleanCiliumState:**
+    cleanCiliumState:
       - NET_ADMIN
       - SYS_ADMIN
       - SYS_RESOURCE
-**cgroup:**
-  **autoMount:**
-    **enabled:** false
-  **hostRoot:** /sys/fs/cgroup
-**k8sServiceHost:** {endpoint-ip} # <- EDIT THIS
-**k8sServicePort:** 6443
-**gatewayAPI:**
-  **enabled:** false
-**hubble:**
-  **relay:**
-    **enabled:** true
-  **ui:**
-    **enabled:** true
-**hostFirewall:**
-  **enabled:** true
+cgroup:
+  autoMount:
+    enabled: false
+  hostRoot: /sys/fs/cgroup
+k8sServiceHost: {endpoint-ip} # <- EDIT THIS
+k8sServicePort: 6443
+gatewayAPI:
+  enabled: false
+hubble:
+  relay:
+    enabled: true
+  ui:
+    enabled: true
+hostFirewall:
+  enabled: true
 ```
 #### create template
 ```bash
