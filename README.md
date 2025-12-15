@@ -193,18 +193,42 @@ helm search repo cilium/cilium --versions | head
 
 #### an configuration
 ```yaml
-ipam.mode=kubernetes
-kubeProxyReplacement=true
-securityContext.capabilities.ciliumAgent="{CHOWN,KILL,NET_ADMIN,NET_RAW,IPC_LOCK,SYS_ADMIN,SYS_RESOURCE,DAC_OVERRIDE,FOWNER,SETGID,SETUID}"
-securityContext.capabilities.cleanCiliumState="{NET_ADMIN,SYS_ADMIN,SYS_RESOURCE}"
-cgroup.autoMount.enabled=false
-cgroup.hostRoot=/sys/fs/cgroup
-k8sServiceHost={endpoint-ip} # <- EDIT THIS
-k8sServicePort=6443
-gatewayAPI.enabled=false
-hubble.relay.enabled=true
-hubble.ui.enabled=true
-hostFirewall.enabled=true
+**ipam:**
+  **mode:** kubernetes
+**kubeProxyReplacement:** true
+**securityContext:**
+  **capabilities:**
+    **ciliumAgent:**
+      - CHOWN
+      - KILL
+      - NET_ADMIN
+      - NET_RAW
+      - IPC_LOCK
+      - SYS_ADMIN
+      - SYS_RESOURCE
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    **cleanCiliumState:**
+      - NET_ADMIN
+      - SYS_ADMIN
+      - SYS_RESOURCE
+**cgroup:**
+  **autoMount:**
+    **enabled:** false
+  **hostRoot:** /sys/fs/cgroup
+**k8sServiceHost:** {endpoint-ip} # <- EDIT THIS
+**k8sServicePort:** 6443
+**gatewayAPI:**
+  **enabled:** false
+**hubble:**
+  **relay:**
+    **enabled:** true
+  **ui:**
+    **enabled:** true
+**hostFirewall:**
+  **enabled:** true
 ```
 #### create template
 ```bash
