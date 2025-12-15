@@ -348,19 +348,34 @@ kubectl apply --server-side -f cnpg.yaml
 watch kubectl get pods -n cnpg-system
 ```
 ### cert-manager
+#### show versions
+```bash
+helm search repo oci://quay.io/jetstack/charts/cert-manager --versions | head
+```
+#### get values
+```bash
+helm show values oci://quay.io/jetstack/charts/cert-manager --version {version} > cert-manager-values.yaml # <- EDIT THIS
+```
+#### an configuration
+```yaml
+
+```
+#### create template
 ```bash
 helm template \
     cert-manager oci://quay.io/jetstack/charts/cert-manager \
     --kube-version {version} \ # <- EDIT THIS
     --version {version} \ # <- EDIT THIS
     --namespace cert-manager-system \
-    --set crds.enabled=true \
+    --values cert-manager-values.yaml
     > cert-manager.yaml
 ```
+#### apply cert-manager
 ```bash
 kubectl create namespace cert-manager-system
 kubectl apply -f cert-manager.yaml
 ```
+#### watch cert-manager
 ```bash
 watch kubectl get pods -n cert-manager-system
 ```
