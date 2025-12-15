@@ -242,7 +242,7 @@ helm template \
 ```
 #### get kubernetes gateway crds
 ```bash
-wget -O gateway-api-crds.yaml https://github.com/kubernetes-sigs/gateway-api/releases/download/{version}/standard-install.yaml # <- EDIT THIS
+wget -O gateway-api-crds.yaml https://github.com/kubernetes-sigs/gateway-api/releases/download/{version}/experimental-install.yaml # <- EDIT THIS
 ```
 #### apply cilium and gateway crds
 ```bash
@@ -251,8 +251,8 @@ kubectl label namespace cilium-system \
     pod-security.kubernetes.io/enforce=privileged \
     pod-security.kubernetes.io/warn=privileged \
     pod-security.kubernetes.io/audit=privileged --overwrite
-kubectl apply -f gateway-api-crds.yaml
 kubectl apply -f cilium.yaml
+kubectl apply --server-side -f gateway-api-crds.yaml
 ```
 #### watch cilium
 ```bash
@@ -404,7 +404,7 @@ deployment:
 crds:
   gatewayAPI:
     enabled: true
-    channel: standard
+    channel: experimental
   envoyGateway:
     enabled: true
 config:
@@ -445,31 +445,6 @@ watch kubectl get pods -n envoy-gateway-system
 ```
 #### proxy (envoy-gateway-deploy-proxy.yaml)
 ```yaml
-apiVersion: gateway.envoyproxy.io/v1alpha1
-kind: EnvoyProxy
-metadata:
-  name: edge-proxy
-  namespace: envoy-gateway-system
-spec:
-  provider:
-    type: Kubernetes
-    kubernetes:
-      envoyDeployment:
-        replicas: 1
-        pod:
-          hostNetwork: true
-          dnsPolicy: ClusterFirstWithHostNet
-          affinity:
-            nodeAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                nodeSelectorTerms:
-                - matchExpressions:
-                  - key: node-role.kubernetes.io/edge
-                    operator: In
-                    values:
-                    - "true"
-      envoyService:
-        type: ClusterIP
 ```
 #### apply proxy
 ```bash
