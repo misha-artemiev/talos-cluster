@@ -386,47 +386,6 @@ kubectl apply -f cert-manager.yaml
 ```bash
 watch kubectl get pods -n cert-manager-system
 ```
-#### cloudflare dns issuer (cloudflare-dns-issuer.yaml)
-> [!IMPORTANT]
-> User Profile > API Tokens > API Tokens
-> * Permissions:
->   * Zone - DNS - Edit
->   * Zone - Zone - Read
-> * Zone Resources:
->   * Include - All Zones
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: cloudflare-api-token-secret
-  namespace: cert-manager-system
-type: Opaque
-stringData:
-  api-token: {token} # <- EDIT THIS
----
-apiVersion: cert-manager.io/v1
-kind: Issuer
-metadata:
-  name: cloudflare-dns-issuer
-  namespace: cert-manager-system
-spec:
-  acme:
-    email: {email} # <- EDIT THIS
-    server: https://acme-v02.api.letsencrypt.org/directory
-    privateKeySecretRef:
-      name: issuer-account-key-secret
-    solvers:
-    - dns01:
-        cloudflare:
-          email: {email} # <- EDIT THIS
-          apiTokenSecretRef:
-            name: cloudflare-api-token-secret
-            key: api-token
-```
-#### apply cloudflare issuer
-```bash
-kubectl apply -f cloudflare-dns-issuer.yaml
-```
 ### envoy-gateway
 #### show versions
 ```bash
@@ -484,6 +443,47 @@ kubectl apply --server-side -f envoy-gateway.yaml
 ```bash
 watch kubectl get pods -n envoy-gateway-system
 ```
+#### cloudflare dns issuer (cloudflare-dns-issuer.yaml)
+> [!IMPORTANT]
+> User Profile > API Tokens > API Tokens
+> * Permissions:
+>   * Zone - DNS - Edit
+>   * Zone - Zone - Read
+> * Zone Resources:
+>   * Include - All Zones
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cloudflare-api-token-secret
+  namespace: envoy-gateway-system
+type: Opaque
+stringData:
+  api-token: {token} # <- EDIT THIS
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: cloudflare-dns-issuer
+  namespace: envoy-gateway-system
+spec:
+  acme:
+    email: {email} # <- EDIT THIS
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: issuer-account-key-secret
+    solvers:
+    - dns01:
+        cloudflare:
+          email: {email} # <- EDIT THIS
+          apiTokenSecretRef:
+            name: cloudflare-api-token-secret
+            key: api-token
+```
+#### apply cloudflare issuer
+```bash
+kubectl apply -f cloudflare-dns-issuer.yaml
+```
 #### gateway yaml (envoy-gateway-default.yaml)
 ```yaml
 apiVersion: gateway.envoyproxy.io/v1alpha1
@@ -522,6 +522,9 @@ spec:
       protocol: HTTP
       port: 80
       hostname: "*"
+      allowedRoutes:
+        namespaces:
+          from: Same
     - name: https
       protocol: HTTPS
       port: 443
@@ -530,6 +533,9 @@ spec:
         mode: Terminate
         certificateRefs:
           - name: domain-waildcard-tls
+      allowedRoutes:
+        namespaces:
+          from: Same
 ---
 apiVersion: v1
 kind: Service
@@ -546,6 +552,10 @@ spec:
     - name: https
       port: 443
       targetPort: 10443
+      protocol: TCP
+    - name: ssh
+      port: 22
+      targetPort: 10022
       protocol: TCP
   selector:
     gateway.envoyproxy.io/owning-gateway-name: envoy-gateway
