@@ -242,7 +242,7 @@ helm template \
 ```
 #### get kubernetes gateway crds
 ```bash
-wget -O gateway-api-crds.yaml https://github.com/kubernetes-sigs/gateway-api/releases/download/{version}/experimental-install.yaml # <- EDIT THIS
+wget -O gateway-api-crds.yaml https://github.com/kubernetes-sigs/gateway-api/releases/download/{version}/standard-install.yaml # <- EDIT THIS
 ```
 #### apply cilium and gateway crds
 ```bash
@@ -404,7 +404,7 @@ deployment:
 crds:
   gatewayAPI:
     enabled: true
-    channel: experimental
+    channel: standard
   envoyGateway:
     enabled: true
 config:
@@ -442,11 +442,4 @@ kubectl apply --server-side -f envoy-gateway.yaml
 #### watch envoy-gateway
 ```bash
 watch kubectl get pods -n envoy-gateway-system
-```
-#### proxy (envoy-gateway-deploy-proxy.yaml)
-```yaml
-```
-#### apply proxy
-```bash
-kubectl apply -n envoy-gateway-system -f envoy-gateway-deploy-proxy.yaml
 ```
