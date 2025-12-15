@@ -443,3 +443,100 @@ kubectl apply --server-side -f envoy-gateway.yaml
 ```bash
 watch kubectl get pods -n envoy-gateway-system
 ```
+#### gateway yaml (envoy-gateway-gateway.yaml)
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: envoy-gateway-class
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: envoy-gateway
+spec:
+  gatewayClassName: envoy-gateway-class
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+    - name: https
+      protocol https
+      port: 443
+```
+#### apply gateway
+```bash
+kubectl apply -f envoy-gateway-gateway.yaml
+```
+### proxy deployment yaml (envoy-gateway-haproxy.yaml)
+```yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: envoy-gateway-haproxy-proxy
+  namespace: envoy-gateway-system
+spec:
+  selector:
+    matchLabels:
+      app: envoy-gateway-haproxy-proxy
+  template:
+    metadata:
+      labels:
+        app: envoy-gateway-haproxy-proxy
+    spec:
+      nodeSelector:
+        node-role.kubernetes.io/edge: ""
+      tolerations:
+        - key: "node-role.kubernetes.io/edge"
+          operator: "Exists"
+          effect: "NoSchedule"
+      containers:
+        - name: haproxy
+          image: haproxy:3.3-alpine
+          ports:
+            - name: tcp
+              containerPort: 80
+              hostPort: 80
+              protocol: TCP
+          volumeMounts:
+            - name: envoy-gateway-haproxy-config
+              mountPath: /usr/local/etc/haproxy/haproxy.cfg
+              subPath: haproxy.cfg
+      volumes:
+        - name: envoy-gateway-haproxy-config
+          configMap:
+            name: envoy-gateway-haproxy-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: envoy-gateway-haproxy-config
+  namespace: envoy-gateway-system
+data:
+  haproxy.cfg: |
+    global
+        log stdout format raw local0
+
+    defaults
+        log global
+        mode tcp
+        option tcplog
+        timeout connect 10s
+        timeout client 1m
+        timeout server 1m
+
+    frontend tcp_front
+        bind *:80
+        mode tcp
+        default_backend envoy_tcp
+
+    backend envoy_tcp
+        mode tcp
+        server envoy envoy-gateway.envoy-gateway-system.svc.cluster.local:18000:80 check
+```
+#### apply proxy deployment
+```bash
+kubectl apply -f envoy-gateway-haproxy.yaml
+```
