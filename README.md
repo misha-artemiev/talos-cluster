@@ -328,6 +328,7 @@ helm show values cnpg/cloudnative-pg --version {version} > cnpg-values.yaml # <-
 ```
 #### an configuration
 ```yaml
+replicaCount: 3
 ```
 #### create template
 ```bash
