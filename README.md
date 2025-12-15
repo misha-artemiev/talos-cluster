@@ -678,7 +678,7 @@ data:
 ```bash
 kubectl apply -f envoy-gateway-haproxy.yaml
 ```
-#### request dns certificate (domain-tls.yaml)
+#### request tls certificate (domain-tls.yaml)
 ```yaml
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -694,4 +694,8 @@ spec:
   dnsNames:
   - "domain.com"
   - "*.domain.com"
+```
+#### apply tls request
+```bash
+kubectl apply -f domain-tls.yaml
 ```
