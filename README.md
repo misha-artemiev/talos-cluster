@@ -520,7 +520,7 @@ spec:
       nodeSelector:
         node-role.kubernetes.io/edge: ""
       tolerations:
-        - key: "node-role.kubernetes.io/edge"
+        - key: "node.kubernetes.io/edge"
           operator: "Exists"
           effect: "NoSchedule"
       containers:
