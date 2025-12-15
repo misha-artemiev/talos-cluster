@@ -380,7 +380,7 @@ helm template \
 kubectl create namespace cert-manager-system
 kubectl label namespace cert-manager-system \
   pod-security.kubernetes.io/enforce=baseline \
-  pod-security.kubernetes.io/warn=restricted \
+  pod-security.kubernetes.io/warn=baseline \
   pod-security.kubernetes.io/audit=restricted
 kubectl apply --namespace cert-manager-system -f cert-manager-crds.yaml
 ```
