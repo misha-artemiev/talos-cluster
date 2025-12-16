@@ -3,6 +3,8 @@
 > [!IMPORTANT]
 > **CHANGE ALL INSTANCES OF {} WHERE PROMPTED**
 
+[//] # add env vars!!!
+
 ## talos
 ### arm64
 ```bash
@@ -133,6 +135,11 @@ nodes:
                 - key: node.kubernetes.io/edge
                   value: "true"
                   effect: NoSchedule
+      - |-
+        machine:
+          kubelet:
+            extraArgs:
+              rotate-server-certificates: true
     ipAddress: 192.168.0.10
     installDisk: /dev/vda
     networkInterfaces:
@@ -144,30 +151,29 @@ nodes:
             gateway: 192.168.0.1
         dhcp: false
 ```
-
-## talhelper
-### generate config
+## install
+### talhelper
+#### generate config
 ```bash
 talhelper genconfig
 ```
-### apply config
+#### apply config
 ```bash
 talhelper gencommand apply --extra-flags --insecure
 ```
-### bootstrap etcd
+#### bootstrap etcd
 ```bash
 talosctl bootstrap --talosconfig=clusterconfig/talosconfig --nodes {endpoint-address} # <- EDIT THIS
 ```
-### local kubeconfig
+#### local kubeconfig
 ```bash
 talosctl kubeconfig --talosconfig=clusterconfig/talosconfig --nodes {endpoint-address} # <- EDIT THIS
 ```
-
-### watch
+#### watch
 ``` bash
 watch kubectl get nodes
 ```
-### roles
+#### roles
 ```bash
 kubectl label node <node-name> node-role.kubernetes.io/worker=""
 ```
@@ -176,9 +182,19 @@ kubectl label node <node-name> node-role.kubernetes.io/edge=""
 ```
 ```bash
 kubectl label node <node-name> node-role.kubernetes.io/control-plane=""
-
 ```
-
+#### get additional serives
+```bash
+wget -O gateway-api-crds.yaml https://github.com/kubernetes-sigs/gateway-api/releases/download/latest/standard-install.yaml
+wget -O cert-approver.yaml https://raw.githubusercontent.com/alex1989hu/kubelet-serving-cert-approver/main/deploy/standalone-install.yaml
+wget -O metrics-server.yaml https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+```
+#### apply additional serives
+```bash
+kubectl apply --server-side -f gateway-api-crds.yaml
+kubectl apply -f cert-approver.yaml
+kubectl apply -f metrics-server.yaml
+```
 ## deployments
 ### cilium
 #### add helm repo
@@ -244,9 +260,6 @@ helm template \
     --values cilium-values.yaml \
     > cilium.yaml
 ```
-#### get kubernetes gateway crds
-```bash
-wget -O gateway-api-crds.yaml https://github.com/kubernetes-sigs/gateway-api/releases/download/{version}/standard-install.yaml # <- EDIT THIS
 ```
 #### apply cilium and gateway crds
 ```bash
@@ -256,29 +269,10 @@ kubectl label namespace cilium-system \
     pod-security.kubernetes.io/warn=privileged \
     pod-security.kubernetes.io/audit=privileged --overwrite
 kubectl apply -f cilium.yaml
-kubectl apply --server-side -f gateway-api-crds.yaml
 ```
 #### watch cilium
 ```bash
 watch kubectl get pods -n cilium-system
-```
-### metrics-server
-#### get yaml
-```bash
-wget -O metrics-server.yaml https://github.com/kubernetes-sigs/metrics-server/releases/download/{version}/high-availability-1.21+.yaml # <- EDIT THIS
-```
-#### fix self signed tls
-```bash
-sed -i '' 's/args:/args:\
-        - --kubelet-insecure-tls/' metrics-server.yaml
-```
-#### apply metrics-server
-```
-kubectl apply -f metrics-server.yaml
-```
-#### watch metrics-server
-```bash
-watch kubectl get pods -n kube-system
 ```
 ### longhorn
 #### add helm repo
@@ -546,22 +540,22 @@ metadata:
 spec:
   gatewayClassName: envoy-gateway-class
   listeners:
-    - name: http
+    - name: domain-http
       protocol: HTTP
       port: 80
-      hostname: "*"
+      hostname: "domain"
       allowedRoutes:
         namespaces:
           from: Same
-    - name: https
+    - name: domain-https
       protocol: HTTPS
       port: 443
-      hostname: "*"
+      hostname: "domain"
       tls:
         mode: Terminate
         certificateRefs:
           - kind: Secret
-            name: domain-waildcard-tls
+            name: domain-tls
       allowedRoutes:
         namespaces:
           from: Same
@@ -695,25 +689,4 @@ data:
 #### apply proxy deployment
 ```bash
 kubectl apply -f envoy-gateway-haproxy.yaml
-```
-#### request tls certificate (domain-tls.yaml)
-```yaml
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: domain-wildcard-cert
-  namespace: envoy-gateway-system
-spec:
-  secretName: domain-waildcard-tls
-  issuerRef:
-    name: cloudflare-dns-issuer
-    kind: Issuer
-  commonName: domain.com
-  dnsNames:
-  - "domain.com"
-  - "*.domain.com"
-```
-#### apply tls request
-```bash
-kubectl apply -f domain-tls.yaml
 ```
