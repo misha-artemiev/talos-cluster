@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > **CHANGE ALL INSTANCES OF {} WHERE PROMPTED**
 
-<!-- # add env vars!!! -->
+<!-- ADD ENV VARS!!! -->
 
 ## talos
 ### arm64
