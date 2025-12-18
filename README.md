@@ -20,6 +20,9 @@ wget -O metal-amd64.iso https://github.com/siderolabs/talos/releases/download/$T
 **/.vscode
 clusterconfig/
 ```
+> [!INFORMATION]
+> ```
+> ```
 
 ## encryption setup
 > [!IMPORTANT]
