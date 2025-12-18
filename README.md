@@ -7,11 +7,11 @@
 ```
 export TALOS_VERSION=
 ```
-### arm64
+### get arm64
 ```bash
 wget -O metal-arm64.iso https://github.com/siderolabs/talos/releases/download/$TALOS_VERSION/metal-arm64.iso
 ```
-### amd64
+### get amd64
 ```bash
 wget -O metal-amd64.iso https://github.com/siderolabs/talos/releases/download/$TALOS_VERSION/metal-amd64.iso
 ```
