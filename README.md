@@ -1,7 +1,5 @@
 # talos cluster
 
-<!-- ADD ENV VARS!!! -->
-
 ## talos iso
 ### set talos version
 ```
@@ -34,7 +32,7 @@ clusterconfig/
 ```bash
 export TALSECRETS_KEY=$(age-keygen -y ~/.config/sops/age/keys.txt)
 ```
-### .sops.yaml
+### create .sops.yaml
 ```bash
 cat >> .sops.yaml <<EOF
 creation_rules:
@@ -44,12 +42,9 @@ EOF
 ```
 
 ## talsecret.sops.yaml
-### generate
+### generate and encrypt
 ```bash
 talhelper gensecret > talsecret.sops.yaml
-```
-### encrypt
-```bash
 sops -e -i talsecret.sops.yaml
 ```
 
