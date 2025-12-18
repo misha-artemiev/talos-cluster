@@ -21,7 +21,7 @@ wget -O metal-amd64.iso https://github.com/siderolabs/talos/releases/download/$T
 clusterconfig/
 ```
 >[!TIP]
-> auto create
+> just dump
 >```
 >cat >> .gitignore <<EOF
 >**/.DS_Store
