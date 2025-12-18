@@ -32,13 +32,14 @@ clusterconfig/
 >```
 ### get key id
 ```bash
-age-keygen -y ~/.config/sops/age/keys.txt | cat
+export TALSECRETS_KEY = $(age-keygen -y ~/.config/sops/age/keys.txt)
 ```
 ### .sops.yaml
-```yaml
+```bash
+cat >> .sops.yaml <<EOF
 creation_rules:
   - age:
-    - {key} # <- EDIT THIS
+    - $TALSECRETS_KEY
 ```
 
 ## talsecret.sops.yaml
