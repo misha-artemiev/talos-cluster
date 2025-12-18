@@ -20,8 +20,14 @@ wget -O metal-amd64.iso https://github.com/siderolabs/talos/releases/download/$T
 **/.vscode
 clusterconfig/
 ```
-> [!INFO]
-> ```
+>[!TIP]
+> auto create
+>```
+>cat >> .gitignore <<EOF
+>**/.DS_Store
+>**/.vscode
+>clusterconfig/
+>EOF
 > ```
 
 ## encryption setup
