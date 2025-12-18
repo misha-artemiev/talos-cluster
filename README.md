@@ -23,7 +23,7 @@ wget -O metal-amd64.iso https://github.com/siderolabs/talos/releases/download/$T
 clusterconfig/
 ```
 
-## .sops.yaml
+## encryption setup
 > [!IMPORTANT]
 > if you dont have an age key
 >```bash
@@ -34,6 +34,7 @@ clusterconfig/
 ```bash
 age-keygen -y ~/.config/sops/age/keys.txt | cat
 ```
+### .sops.yaml
 ```yaml
 creation_rules:
   - age:
