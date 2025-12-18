@@ -28,7 +28,7 @@ clusterconfig/
 > if you dont have an age key
 >```bash
 >mkdir -p $HOME/.config/sops/age
->age-keygen -o $HOME/.config/sops/age/keys.txt | cat
+>age-keygen -o $HOME/.config/sops/age/keys.txt
 >```
 ### get key id
 ```bash
