@@ -30,7 +30,10 @@ clusterconfig/
 >mkdir -p $HOME/.config/sops/age
 >age-keygen -o $HOME/.config/sops/age/keys.txt
 >```
-
+### get key id
+```bash
+age-keygen -y ~/.config/sops/age/keys.txt | cat
+```
 ```yaml
 creation_rules:
   - age:
