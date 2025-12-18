@@ -22,7 +22,7 @@ clusterconfig/
 ```
 >[!TIP]
 > just dump
->```
+>```bash
 >cat >> .gitignore <<EOF
 >**/.DS_Store
 >**/.vscode
