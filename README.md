@@ -28,11 +28,11 @@ clusterconfig/
 > if you dont have an age key
 >```bash
 >mkdir -p $HOME/.config/sops/age
->age-keygen -o $HOME/.config/sops/age/keys.txt
+>age-keygen -o $HOME/.config/sops/age/keys.txt | cat
 >```
 ### get key id
 ```bash
-export TALSECRETS_KEY = $(age-keygen -y ~/.config/sops/age/keys.txt)
+export TALSECRETS_KEY=$(age-keygen -y ~/.config/sops/age/keys.txt)
 ```
 ### .sops.yaml
 ```bash
@@ -40,6 +40,7 @@ cat >> .sops.yaml <<EOF
 creation_rules:
   - age:
     - $TALSECRETS_KEY
+EOF
 ```
 
 ## talsecret.sops.yaml
