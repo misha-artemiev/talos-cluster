@@ -1,18 +1,19 @@
 # talos cluster
 
-> [!IMPORTANT]
-> **CHANGE ALL INSTANCES OF {} WHERE PROMPTED**
-
 <!-- ADD ENV VARS!!! -->
 
-## talos
+## talos iso
+### set talos version
+```
+export TALOS_VERSION=
+```
 ### arm64
 ```bash
-wget -O metal-arm64.iso https://github.com/siderolabs/talos/releases/download/{version}/metal-arm64.iso # <- EDIT THIS
+wget -O metal-arm64.iso https://github.com/siderolabs/talos/releases/download/$TALOS_VERSION/metal-arm64.iso
 ```
 ### amd64
 ```bash
-wget -O metal-amd64.iso https://github.com/siderolabs/talos/releases/download/{version}/metal-amd64.iso # <- EDIT THIS
+wget -O metal-amd64.iso https://github.com/siderolabs/talos/releases/download/$TALOS_VERSION/metal-amd64.iso
 ```
 
 ## .gitignore
