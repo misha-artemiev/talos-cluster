@@ -271,7 +271,6 @@ helm template \
     --values cilium-values.yaml \
     > cilium.yaml
 ```
-```
 #### apply cilium and gateway crds
 ```bash
 kubectl create namespace cilium-system
