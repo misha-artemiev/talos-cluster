@@ -377,7 +377,7 @@ crane ls quay.io/jetstack/charts/cert-manager | tail
 ```
 #### show versions
 ```bash
-crane ls oci://quay.io/jetstack/charts/cert-manager-approver-policy | tail
+crane ls quay.io/jetstack/charts/cert-manager-approver-policy | tail
 ```
 #### get crds
 ```bash
