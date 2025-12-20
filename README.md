@@ -398,6 +398,12 @@ helm template \
     --namespace cert-manager-system \
     --values cert-manager-values.yaml \
     > cert-manager.yaml
+helm tempalte \
+    cert-manager-approver-policy oci://quay.io/jetstack/charts/cert-manager-approver-policy \
+    --kube-version {version} \ # <- EDIT THIS
+    --version {version} \ # <- EDIT THIS
+    --namespace cert-manager-system \
+    > cert-manager-approver-policy.yaml
 ```
 #### apply cert-manager and crds
 ```bash
@@ -408,6 +414,7 @@ kubectl label namespace cert-manager-system \
   pod-security.kubernetes.io/audit=restricted
 kubectl apply --namespace cert-manager-system -f cert-manager-crds.yaml
 kubectl apply -f cert-manager.yaml
+kubectl apply -f cert-manager-approver-policy.yaml
 ```
 #### watch cert-manager
 ```bash
