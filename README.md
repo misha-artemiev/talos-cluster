@@ -398,7 +398,7 @@ helm template \
     --namespace cert-manager-system \
     --values cert-manager-values.yaml \
     > cert-manager.yaml
-helm tempalte \
+helm template \
     cert-manager-approver-policy oci://quay.io/jetstack/charts/cert-manager-approver-policy \
     --kube-version {version} \ # <- EDIT THIS
     --version {version} \ # <- EDIT THIS
