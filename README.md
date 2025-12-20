@@ -375,18 +375,19 @@ watch kubectl get pods -n cnpg-system
 ```bash
 crane ls quay.io/jetstack/charts/cert-manager | tail
 ```
-#### get values
-```bash
-helm show values oci://quay.io/jetstack/charts/cert-manager --version {version} > cert-manager-values.yaml # <- EDIT THIS
-```
 #### get crds
 ```bash
 wget -O cert-manager-crds.yaml https://github.com/cert-manager/cert-manager/releases/download/{version}/cert-manager.crds.yaml # <- EDIT THIS
+```
+#### get values
+```bash
+helm show values oci://quay.io/jetstack/charts/cert-manager --version {version} > cert-manager-values.yaml # <- EDIT THIS
 ```
 #### an configuration
 ```yaml
 installCRDs: false
 replicaCount: 3
+disableAutoApproval=true
 ```
 #### create template
 ```bash
