@@ -387,7 +387,7 @@ helm show values oci://quay.io/jetstack/charts/cert-manager --version {version} 
 ```yaml
 installCRDs: false
 replicaCount: 3
-disableAutoApproval=true
+disableAutoApproval: true
 ```
 #### create template
 ```bash
