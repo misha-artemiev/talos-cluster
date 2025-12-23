@@ -128,7 +128,8 @@ commonConfig: &common
                 - bind
                 - rshared
                 - rw
-
+          extraArgs:
+            rotate-server-certificates: true
 controlPlane:
   <<: *common
 worker:
@@ -148,11 +149,6 @@ nodes:
                 - key: node.kubernetes.io/edge
                   value: "true"
                   effect: NoSchedule
-      - |-
-        machine:
-          kubelet:
-            extraArgs:
-              rotate-server-certificates: true
     ipAddress: 192.168.0.10
     installDisk: /dev/vda
     networkInterfaces:
