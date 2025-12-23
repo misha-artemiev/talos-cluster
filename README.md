@@ -194,13 +194,15 @@ kubectl label node <node-name> node-role.kubernetes.io/control-plane=""
 ```
 #### get additional serives
 ```bash
-wget -O gateway-api-crds.yaml https://github.com/kubernetes-sigs/gateway-api/releases/download/{version}/standard-install.yaml <- EDIT THIS
+wget -O gateway-api-crds-standard.yaml https://github.com/kubernetes-sigs/gateway-api/releases/download/{version}/standard-install.yaml <- EDIT THIS
+wget -O gateway-api-crds-experimental.yaml https://github.com/kubernetes-sigs/gateway-api/releases/download/{version}/experimental-install.yaml <- EDIT THIS
 wget -O cert-approver.yaml https://raw.githubusercontent.com/alex1989hu/kubelet-serving-cert-approver/main/deploy/standalone-install.yaml
 wget -O metrics-server.yaml https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 ```
 #### apply additional serives
 ```bash
-kubectl apply --server-side -f gateway-api-crds.yaml
+kubectl apply --server-side -f gateway-api-crds-standard.yaml
+kubectl apply --server-side -f gateway-api-crds-experimental.yaml
 kubectl apply -f cert-approver.yaml
 kubectl apply -f metrics-server.yaml
 ```
