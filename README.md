@@ -164,7 +164,7 @@ nodes:
 ### talhelper
 #### generate config
 ```bash
-talhelper genconfig
+talhelper genconfig --no-gitignore --offline-mode
 ```
 #### apply config
 ```bash
